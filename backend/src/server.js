@@ -55,7 +55,22 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+
+// Attach all /api routes
 app.use('/api', routes);
+
+// Catch-all for unsupported HTTP methods on /api/*
+app.all('/api/*', (req, res, next) => {
+  // If response is not yet sent and no route matched, return 405
+  if (!res.headersSent) {
+    res.status(405).json({
+      error: 'Method Not Allowed',
+      message: `The method ${req.method} is not allowed for ${req.originalUrl}`
+    });
+  } else {
+    next();
+  }
+});
 
 // 404 handler
 app.use(notFoundHandler);
